@@ -1,0 +1,62 @@
+# ====== jinja ======
+# Configure template to use standard jinja2 syntax
+# From: https://github.com/Tecnativa/doodba-copier-template/blob/stable/copier.yml#L1-L10
+_min_copier_version: "7"
+_templates_suffix: .jinja
+_envops:
+  block_end_string: '%}'
+  block_start_string: '{%'
+  comment_end_string: '#}'
+  comment_start_string: '{#'
+  keep_trailing_newline: true
+  variable_end_string: '}}'
+  variable_start_string: '{{'
+_jinja_extensions:
+  - jinja2_shell_extension.ShellExtension
+_subdirectory: "template"
+
+# questions
+project_name:
+  type: str
+  help: "Your project name (can have spaces)"
+
+project_long_name:
+  type: str
+  help: "A longer name for your project"
+  default: "{{ project_name }}"
+
+package_name:
+  type: str
+  help: "Your package name (should be in 'snake_case')"
+  default: "{{ project_name|replace(' ', '')|lower }}"
+
+short_description:
+  type: str
+  help: "Short description of your package (one-liner)"
+  default: "{{ project_name }}."
+  validator: "{% if short_description|length > 82 %}
+  Short description can have max 82 characters.
+{% endif %}"
+
+author_fullname:
+  type: str
+  help: "Your full name"
+  default: "{{ 'git config --get user.name' | shell | trim }}"
+
+author_email:
+  type: str
+  help: "Your email"
+  default: "{{ 'git config --get user.email' | shell | trim }}"
+
+copyright_holder:
+  type: str
+  help: "The name of the person/entity holding the copyright"
+
+copyright_holder_email:
+  type: str
+  help: "The email of the person/entity holding the copyright"
+
+copyright_date:
+  type: str
+  help: "The copyright date"
+  default: '{{ now().year }}'

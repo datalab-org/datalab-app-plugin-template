@@ -1,0 +1,93 @@
+[build-system]
+requires = ["setuptools >= 61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "{{ package_name }}"
+description = "{{ short_description }}"
+readme = "README.md"
+keywords = []
+license = { text = "modified BSD" }
+authors = [{ name = "{{ author_fullname }}", email = "{{ author_email }}" }]
+dynamic = ["version"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Information Technology",
+    "Operating System :: OS Independent",
+    "Topic :: Other/Nonlisted Topic",
+    "Topic :: Scientific/Engineering",
+]
+requires-python = ">=3.9"
+dependencies =[]
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=3.0.0",
+]
+tests = [
+    "pytest==7.2.1",
+    "pytest-cov==4.0.0",
+    ]
+strict = []
+
+[project.scripts]
+
+[project.urls]
+homepage = "https://{{repository_namespace}}.github.io/{{package_name}}/"
+repository = "https://github.com/{{repository_namespace}}/{{package_name}}"
+documentation = "https://{{repository_namespace}}.github.io/{{package_name}}/"
+changelog = "https://github.com/{{repository_namespace}}/{{package_name}}/CHANGELOG.md"
+
+[tool.setuptools.packages.find]
+namespaces = true
+
+[tool.setuptools.package-data]
+{{package_name}} = ["py.typed"]
+
+[tool.isort]
+profile = "black"
+
+[tool.flake8]
+max-line-length = 88
+max-doc-length = 88
+select = "C, E, F, W, B"
+extend-ignore = "E203, W503, E501, F401, RST21"
+min-python-version = "3.9.0"
+docstring-convention = "numpy"
+rst-roles = "class, func, ref, obj"
+
+[tool.mypy]
+ignore_missing_imports = true
+no_strict_optional = true
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore:.*POTCAR.*:UserWarning",
+    "ignore:.*magmom.*:UserWarning",
+    "ignore:.*is not gzipped.*:UserWarning",
+    "ignore:.*input structure.*:UserWarning",
+    "ignore::DeprecationWarning",
+]
+
+[tool.coverage.run]
+include = ["src/*"]
+parallel = true
+branch = true
+
+[tool.coverage.paths]
+source = ["src/"]
+
+[tool.coverage.report]
+skip_covered = true
+show_missing = true
+exclude_lines = [
+    '^\s*assert False(,|$)',
+    'if typing.TYPE_CHECKING:',
+    '^\s*@overload( |$)',
+]
