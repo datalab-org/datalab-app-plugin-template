@@ -23,6 +23,11 @@ project_long_name:
   help: "A longer name for your project"
   default: "{{ project_name }}"
 
+repository_name:
+  type: str
+  help: "The name of the repository (should be in 'kebab-case')"
+  default: "{{ project_name }}"
+
 package_name:
   type: str
   help: "Your package name (should be in 'snake_case')"
@@ -35,6 +40,11 @@ short_description:
   validator: "{% if short_description|length > 82 %}
   Short description can have max 82 characters.
 {% endif %}"
+
+repository_namespace:
+  type: str
+  help: "The namespace of the repository (e.g. your GitHub username or organisation)"
+  default: "your-namespace"
 
 author_fullname:
   type: str
