@@ -39,12 +39,10 @@ short_description:
 author_fullname:
   type: str
   help: "Your full name"
-  default: "{{ 'git config --get user.name' | shell | trim }}"
 
 author_email:
   type: str
   help: "Your email"
-  default: "{{ 'git config --get user.email' | shell | trim }}"
 
 copyright_holder:
   type: str
