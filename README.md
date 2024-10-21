@@ -7,5 +7,5 @@ case the template can be used with:
 
 ```shell
 mkdir my_plugin
-uvx copier git@github.com:datalab-org/datalab-app-plugin-template" my_plugin
+uvx copier copy git@github.com:datalab-org/datalab-app-plugin-template" my_plugin
 ```
