@@ -26,7 +26,6 @@ project_long_name:
 repository_name:
   type: str
   help: "The name of the repository (should be in 'kebab-case')"
-  default: "{{ project_name }}"
 
 package_name:
   type: str
