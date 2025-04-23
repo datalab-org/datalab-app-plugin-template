@@ -30,7 +30,7 @@ repository_name:
 package_name:
   type: str
   help: "Your package name (should be in 'snake_case')"
-  default: "{{ project_name|replace(' ', '')|lower }}"
+  default: "{{ project_name|replace(' ', '_')|lower }}"
 
 short_description:
   type: str
