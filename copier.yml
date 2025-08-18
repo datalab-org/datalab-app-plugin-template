@@ -12,6 +12,7 @@ _envops:
   variable_end_string: '}}'
   variable_start_string: '{{'
 _subdirectory: "template"
+_preserve_symlinks: true
 
 # questions
 project_name:
