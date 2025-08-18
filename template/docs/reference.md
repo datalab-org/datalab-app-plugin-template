@@ -1,0 +1,4 @@
+# Reference
+
+::: {{ package_name }}
+

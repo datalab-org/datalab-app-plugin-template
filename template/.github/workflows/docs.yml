@@ -1,0 +1,64 @@
+---
+name: Build docs
+on:
+  pull_request:
+
+  release:
+
+  push:
+    branches:
+      - main
+
+jobs:
+    build-docs:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v5
+
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: '3.10'
+
+            - name: Set up uv
+              uses: astral-sh/setup-uv@v6
+              with:
+                version: "${{ env.UV_VERSION }}"
+                enable-cache: true
+
+            - name: Install dependencies
+              run: |
+                uv sync --locked --all-extras --dev
+
+            - name: Build docs
+              run: |
+                uv run mkdocs build --strict
+
+            - name: Tar doc files
+              if: github.event_name == 'push'
+              run: tar -cvf site.tar site
+
+            - name: Upload doc artifact
+              uses: actions/upload-artifact@v3
+              if: github.event_name == 'push'
+              with:
+                  name: site
+                  path: site.tar
+
+    deploy-pages:
+        runs-on: ubuntu-latest
+        if: github.event_name == 'push'
+        steps:
+
+            - uses: actions/download-artifact@v3
+              with:
+                  name: site
+
+            - name: Untar archive
+              run: tar -xvf site.tar
+
+            - uses: peaceiris/actions-gh-pages@v3
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: ./site
+                  keep_files: false
