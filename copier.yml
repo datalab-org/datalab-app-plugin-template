@@ -1,7 +1,7 @@
 # ====== jinja ======
 # Configure template to use standard jinja2 syntax
 # From: https://github.com/Tecnativa/doodba-copier-template/blob/stable/copier.yml#L1-L10
-_min_copier_version: "7"
+_min_copier_version: "9"
 _templates_suffix: .jinja
 _envops:
   block_end_string: '%}'
