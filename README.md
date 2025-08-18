@@ -6,16 +6,25 @@ Please raise any issues in the [Issue Tracker](https://github.com/datalab-org/da
 
 This template uses [Copier](https://github.com/copier-org/copier).
 
-We recommend using `uv` to manage Python versions and environments, in which
-case the template can be used with:
+We recommend using `uv` to manage Python versions and environments, in which case the template can be used with:
 
 ```shell
 mkdir my_plugin
-uvx copier copy "git@github.com:datalab-org/datalab-app-plugin-template" my_plugin
+uvx copier copy "git@github.com:datalab-org/datalab-app-plugin-template" <my_plugin>
 ```
 
 This will guide you through the process of creating a new repository for your plugin.
-You can commit the result, alongside the `.copier-answers.yml` file, to your new repository, which can be kept up to date with the template by running:
+You can commit the result, alongside the `.copier-answers.yml` file, to your new repository (after creating it on GitHub or elsewhere):
+
+```shell
+cd <my_plugin>
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin <your-repo-url>
+```
+
+You can also occasionally sync changes from this template by running:
 
 ```shell
 uvx copier update my_plugin
