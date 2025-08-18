@@ -12,7 +12,6 @@ authors = [{ name = "{{ author_fullname }}", email = "{{ author_email }}" }]
 dynamic = ["version"]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -35,7 +34,7 @@ changelog = "https://github.com/{{repository_namespace}}/{{project_name}}/CHANGE
 
 # Edit this entry point with any block classes implemented in this plugin
 [project.entry-points.'pydatalab.apps.plugins']
-mydatablock = "{{package_name}}:MyDataBlock"
+example = "{{package_name}}.blocks:ExampleDataBlock"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -63,6 +62,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.uv]
 dev-dependencies = [
+    "datalab-server[server] > 0.5",
     "pytest ~= 8.2",
     "pytest-cov ~= 5.0",
     "pre-commit ~= 4.0",
