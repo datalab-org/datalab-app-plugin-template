@@ -39,7 +39,7 @@ jobs:
               run: tar -cvf site.tar site
 
             - name: Upload doc artifact
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               if: github.event_name == 'push'
               with:
                   name: site
@@ -50,7 +50,7 @@ jobs:
         if: github.event_name == 'push'
         steps:
 
-            - uses: actions/download-artifact@v3
+            - uses: actions/download-artifact@v5
               with:
                   name: site
 

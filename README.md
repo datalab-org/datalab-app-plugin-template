@@ -18,6 +18,7 @@ You can commit the result, alongside the `.copier-answers.yml` file, to your new
 
 ```shell
 cd <my_plugin>
+uv lock
 git init
 git add .
 git commit -m "Initial commit"
