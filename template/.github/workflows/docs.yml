@@ -48,6 +48,7 @@ jobs:
     deploy-pages:
         runs-on: ubuntu-latest
         if: github.event_name == 'push'
+        needs: [build-docs]
         steps:
 
             - uses: actions/download-artifact@v5
