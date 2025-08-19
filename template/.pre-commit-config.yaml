@@ -13,6 +13,7 @@ repos:
         args: [--unsafe]
       - id: check-json
       - id: end-of-file-fixer
+        exclude: ^.copier-answers.yml$
       - id: check-added-large-files
         args: [--maxkb=1024]
       - id: check-symlinks

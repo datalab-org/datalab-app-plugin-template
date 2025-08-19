@@ -1,4 +1,3 @@
 # Reference
 
 ::: {{ package_name }}
-
