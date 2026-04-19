@@ -65,7 +65,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.uv]
 dev-dependencies = [
-    "datalab-server[server] > 0.5",
+    "datalab-server[server,apps] ~= 0.6",  # For compatibility with other core plugins
     "pytest ~= 8.2",
     "pytest-cov ~= 5.0",
     "pre-commit ~= 4.0",
