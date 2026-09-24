@@ -7,8 +7,8 @@ We recommend you use [`uv`](https://astral.sh/uv) for managing virtual environme
 Once you have `uv` installed, you can clone this repository and install the package in a fresh virtual environment with:
 
 ```
-git clone git@github.com:{{ repository_namespace }}/{{ package_name }}
-cd {{package_name}}
+git clone git@github.com:{{ repository_namespace }}/{{ repository_name }}
+cd {{ repository_name }}
 uv sync --all-extras --dev
 ```
 
@@ -17,43 +17,55 @@ This will call `pre-commit` automatically on every commit to check for code styl
 
 ## Installation and deployment as a *datalab* plugin
 
-It is also possible install this plugin on a local *datalab* instance (for e.g., testing).
+This package can be installed as a plugin on a *datalab* instance (e.g., a local
+instance for testing, or a production deployment).
+Full details can be found in the [*datalab* plugin documentation](https://docs.datalab-org.io/en/latest/plugins/).
 
-The simplest way to do this is to activate the virtual environment in which
-*datalab* is installed, then run `uv pip install .` in the root of
-this repository which will install the package in the current Python
-environment. This will be clobbered by any `uv sync` command, so it is not
-recommended for development.
+> [!WARNING]
+> Plugins are installed into the same Python environment as the *datalab* server
+> and run with full server privileges. Only install plugins from sources you trust.
 
-The alternative is to make a branch of your local *datalab* and add the plugin
-to your local *datalab* `pydatalab/pyproject.toml` as an extra.
-You also need to provide the source of the plugin in the `[tool.uv.sources]`
-section of the `pyproject.toml` file, which could point to a public GitHub
-repository or a local path. For example:
+Plugins are declared in a `plugins.toml` file at the root of your *datalab*
+repository (alongside `pydatalab/` and `webapp/`), using the same format as the
+relevant fragments of a `pyproject.toml`. For example, to install this plugin
+from GitHub (pinned to a given release), or from a local checkout for development:
 
 ```toml
-[project.optional-dependencies]
-plugins = [
-    "my-local-plugin",
-    "my-git-plugin",
+# plugins.toml (at the root of the datalab repository)
+dependencies = [
+    "{{ project_name }}",
 ]
 
 [tool.uv.sources]
-my-local-plugin = { path = "../path/to/my-local-plugin" }
-my-git-plugin = { git = "https://github.com/user/plugin-repo.git" }
+# Pin to a specific git ref:
+{{ project_name }} = { git = "https://github.com/{{ repository_namespace }}/{{ repository_name }}.git", rev = "v0.1.0" }
+# Or point at a local checkout (paths are resolved relative to plugins.toml itself):
+# {{ project_name }} = { path = "../{{ repository_name }}", editable = true }
 ```
 
-Running `uv.lock` will then create a lockfile with the plugin included, and you
-can then run `uv sync` to install the plugin in your local *datalab* instance.
+Then, with the *datalab* virtual environment activated, install *datalab*
+together with the declared plugins:
+
+```shell
+cd pydatalab
+uv run invoke dev.install
+```
+
+This merges `plugins.toml` into a copy of the *datalab* `pyproject.toml` under
+`./build/`, generates a lockfile including the plugins, and installs everything
+into the active environment. Restart the *datalab* server so that the plugin is
+discovered at startup.
+
+To revert to the core *datalab* dependencies without any plugins, run
+`uv sync --all-extras --dev` in the `pydatalab` directory.
 
 ### Deploying plugins in production
 
-The process of deploying plugins in production is similar to the local approach
-above (for now) and depends on how you manage your *datalab* deployment.  The recommended approach is to use the
-[`datalab-ansible-terraform`](https://github.com/datalab-industries/datalab-ansible-terraform)
-repository to manage your *datalab* deployment, which uses Ansible 
-to deploy *datalab* on a remote server. In this case, you can create a branch of the
-repository for your deployment and add the plugin as an extra in the
-`pyproject.toml` file of the `pydatalab` component, as described above. You can
-then run `uv.lock` and `uv sync` to install the plugin in your production
-environment.
+The same `plugins.toml` mechanism is used for production deployments:
+
+- The *datalab* server Docker image picks up a `plugins.toml` at the root of the
+  repository automatically at build time, so plugins can be baked into a
+  custom image without modifying the Dockerfile.
+- The [*datalab* Ansible role](https://github.com/datalab-org/datalab-ansible-terraform)
+  will provision plugins on a deployed server when a `plugins.toml` is
+  provided; see the role documentation for details.
