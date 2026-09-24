@@ -31,6 +31,6 @@ You can also occasionally sync changes from this template by running the followi
 uvx copier update
 ```
 
-Releases of the plugin are created via semantic version tags on GitHub, and will require manually updating the `CHANGELOG.md` file.
+Releases of the plugin are created via semantic version tags on GitHub, with release notes written in the GitHub release.
 
 An example use of this repository can be found at [datalab-app-plugin-example](https://github.com/datalab-org/datalab-app-plugin-example).
