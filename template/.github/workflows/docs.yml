@@ -39,17 +39,25 @@ jobs:
               run: |
                 uv run mkdocs build --strict
 
-            - name: Tar doc files
+            # Only deploy if GitHub Pages is enabled for this repository
+            # (Settings -> Pages -> Source: "GitHub Actions"); otherwise, skip deployment
+            - name: Check GitHub Pages is enabled
+              id: pages
               if: github.event_name == 'push'
-              run: tar -cvf site.tar site
+              uses: actions/configure-pages@v5
+              continue-on-error: true
+
+            - name: Report skipped deployment
+              if: github.event_name == 'push' && steps.pages.outcome != 'success'
+              run: echo "::notice::GitHub Pages is not enabled for this repository; skipping docs deployment."
 
             - name: Upload doc artifact
               uses: actions/upload-pages-artifact@v3
-              if: github.event_name == 'push'
+              if: github.event_name == 'push' && steps.pages.outcome == 'success'
               with:
                   path: ./site
 
             - name: Deploy to GitHub Pages
-              if: github.event_name == 'push'
+              if: github.event_name == 'push' && steps.pages.outcome == 'success'
               uses: actions/deploy-pages@v4
               id: deployment
