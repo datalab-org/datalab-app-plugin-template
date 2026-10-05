@@ -1,0 +1,154 @@
+{% raw %}name: CI tests
+on:
+  pull_request:
+
+  push:
+    branches:
+      - main
+
+env:
+  UV_VERSION: "0.8.x"
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  pre-commit:
+    name: Run linters and other pre-commit hooks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "${{ env.UV_VERSION }}"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: |
+          uv sync --locked --all-extras --dev
+
+      - name: Run pre-commit
+        run: |
+          uv run pre-commit run --all-files --show-diff-on-failure
+
+  pytest:
+    name: Run Python unit tests
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # tests need an unshallowed version of the repository to check the version
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "${{ env.UV_VERSION }}"
+          enable-cache: true
+
+      - name: Install locked versions of dependencies
+        run: |
+          uv sync --locked --all-extras --dev
+
+      - name: Run all tests
+        run: |
+          uv run pytest -rs -vvv ./tests
+{% endraw %}
+  datalab-install:
+    name: Install alongside datalab
+    runs-on: ubuntu-latest
+
+    env:
+      # datalab ref to install the plugin into
+      DATALAB_REF: main
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: plugin
+          fetch-depth: 0
+
+      - uses: actions/checkout@v5
+        with:
+          repository: datalab-org/datalab
+          ref: ${{ '{{' }} env.DATALAB_REF {{ '}}' }}
+          path: datalab
+          # setuptools_scm needs the history to version datalab-server
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "${{ '{{' }} env.UV_VERSION {{ '}}' }}"
+          enable-cache: true
+
+      - name: Write plugins.toml
+        run: |
+          cat > datalab/plugins.toml <<EOF
+          dependencies = ["{{ project_name }}"]
+
+          [tool.uv.sources]
+          {{ project_name }} = { path = "../plugin" }
+          EOF
+
+      - name: Install datalab with plugins
+        working-directory: datalab/pydatalab
+        run: |
+          uv sync --locked --all-extras --dev
+          uv run invoke dev.install
+
+      - name: Check the plugin's blocks are loaded
+        working-directory: datalab/pydatalab
+        # --no-sync: a plain `uv run` would re-sync and uninstall the plugin
+        run: |
+          uv run --no-sync python - <<EOF
+          from importlib.metadata import distribution
+
+          from pydatalab.apps import BLOCK_TYPES, load_block_plugins
+
+          plugins = load_block_plugins()
+          eps = [
+              ep
+              for ep in distribution("{{ project_name }}").entry_points
+              if ep.group == "pydatalab.apps.plugins"
+          ]
+          assert eps, "No pydatalab.apps.plugins entry points found"
+          for ep in eps:
+              block = ep.load()
+              assert plugins[block.blocktype] is block, (block, plugins)
+              assert block.blocktype in BLOCK_TYPES
+          EOF
+
+      - name: Check any webapp components were collected
+        run: |
+          if [ -f plugin/src/{{ package_name }}/webapp/index.js ]; then
+            test -f datalab/webapp/src/plugins/{{ package_name }}/index.js
+            grep -F 'import {{ package_name }} from "./{{ package_name }}/index.js";' datalab/webapp/src/plugins/panels.generated.js
+          fi
